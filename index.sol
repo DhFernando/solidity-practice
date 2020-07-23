@@ -1,4 +1,12 @@
 pragma solidity ^0.5.11;
+contract ERC20Token{
+    string public name;
+    mapping(address => uint256) public balances;
+    
+    function mint() public {
+        balances[tx.origin] += 1;  
+    }
+}
 
 contract SimpleSolidity {
     uint value;
@@ -8,7 +16,8 @@ contract SimpleSolidity {
     
     // wallet
     address payable wallet;
-    mapping(address => uint256) public balances;
+    address public token;
+    
     
     address owner;
     
@@ -24,12 +33,13 @@ contract SimpleSolidity {
         uint256 amount
     );
     
-    constructor(address payable _wallet) public {
+    constructor(address payable _wallet , address _token) public {
         svalue = "string value";
         state = State.waiting;
         owner = msg.sender;
         
         wallet = _wallet;
+        token = _token;
     }
     
     
@@ -38,9 +48,17 @@ contract SimpleSolidity {
         _;
     }
     
+    function() external payable{
+        buyToken();
+    }
+    
     function buyToken() public payable{
         // buy a token
-        balances[msg.sender] += 1;
+        
+        ERC20Token _token = ERC20Token(address(token));
+        _token.mint();
+        
+    
         //sent ether to the wallet
         wallet.transfer(msg.value);
         
